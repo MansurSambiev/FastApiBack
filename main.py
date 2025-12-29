@@ -10,6 +10,7 @@ app.include_router(router_hotels)
 
 
 
+
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
