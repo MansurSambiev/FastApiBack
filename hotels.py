@@ -1,4 +1,4 @@
-from fastapi import Query, APIRouter
+from fastapi import Query, APIRouter, Body, HTTPException
 from schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
@@ -6,8 +6,13 @@ router = APIRouter(prefix='/hotels', tags=['Отели'])
 hotels = [
     {"id": 1, "title": "Sochi", "name": "sochi"},
     {"id": 2, "title": "Дубай", "name": "dubai"},
-    {"id": 2, "title": "Москва", "name": "moscosmo"},
-    {"id": 2, "title": "Краснодар", "name": "reddar"},
+    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+    {"id": 5, "title": "Москва", "name": "moscow"},
+    {"id": 6, "title": "Казань", "name": "kazan"},
+    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
+    {"id": 8, "title": "Москва", "name": "moscosmo"},
+    {"id": 9, "title": "Краснодар", "name": "reddar"},
 ]
 
 
@@ -15,6 +20,9 @@ hotels = [
 def get_hotels(
         id: int | None = Query(None, description="Айдишник"),
         title: str | None = Query(None, description="Название отеля"),
+        page: int | None = Query(1, description='Страница'),
+        per_page: int | None = Query(3, description='Количество отелей на страницу'),
+
 ):
     hotels_ = []
     for hotel in hotels:
@@ -23,13 +31,34 @@ def get_hotels(
         if title and hotel["title"] != title:
             continue
         hotels_.append(hotel)
-    return hotels_
+
+    total = len(hotels_)
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    if not hotels_ and page > 1:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Страница {page} не найдена. Общее число страниц {total - 1 // per_page + 1}'
+        )
+
+    return hotels_[start:end]
 
 
 
 
 @router.post("", summary='Добавление нового отеля')
-def create_hotel(hotel_data: Hotel):
+def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+    '1': {'summary': 'Сочи', 'value': {
+        'title': 'Отель Сочи у моря',
+        'name': 'sochi_u_morya'
+    }},
+    '2': {'summary': 'Дубай', 'value': {
+        'title': 'Отель Дубай у фонтана',
+        'name': 'dubai_fountain'
+    }}
+})
+):
     global hotels
     hotels.append({
         'id': hotels[-1]['id'] + 1,
