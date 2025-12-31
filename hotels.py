@@ -1,4 +1,5 @@
-from fastapi import Query, APIRouter, Body, HTTPException
+from fastapi import Query, APIRouter, Body
+from dependencies import PaginationDep
 from schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
@@ -18,10 +19,9 @@ hotels = [
 
 @router.get("", summary='Получение списка всех отелей')
 def get_hotels(
+        pagination: PaginationDep,
         id: int | None = Query(None, description="Айдишник"),
         title: str | None = Query(None, description="Название отеля"),
-        page: int | None = Query(1, description='Страница'),
-        per_page: int | None = Query(3, description='Количество отелей на страницу'),
 
 ):
     hotels_ = []
@@ -32,19 +32,19 @@ def get_hotels(
             continue
         hotels_.append(hotel)
 
-    total = len(hotels_)
-    start = (page - 1) * per_page
-    end = start + per_page
+    # total = len(hotels_)
+    # start = (page - 1) * per_page
+    # end = start + per_page
+    #
+    # if not hotels_ and page > 1:
+    #     raise HTTPException(
+    #         status_code=404,
+    #         detail=f'Страница {page} не найдена. Общее число страниц {total - 1 // per_page + 1}'
+    #     )
+    #
+    # return hotels_[start:end]
 
-    if not hotels_ and page > 1:
-        raise HTTPException(
-            status_code=404,
-            detail=f'Страница {page} не найдена. Общее число страниц {total - 1 // per_page + 1}'
-        )
-
-    return hotels_[start:end]
-
-
+    return hotels_[(pagination.page - 1) * pagination.per_page:][:pagination.per_page]
 
 
 @router.post("", summary='Добавление нового отеля')
