@@ -13,15 +13,16 @@ async def get_hotels(
         pagination: PaginationDep,
         id: int | None = Query(None, description="Айдишник"),
         title: str | None = Query(None, description="Название отеля"),
+        location: str | None = Query(None, description='Адрес')
 
 ):
     per_page = pagination.per_page or 5
     async with async_session_maker() as session:
         query = select(HotelsOrm)
-        if id:
-            query = query.filter_by(id=id)
+        if location:
+            query = query.filter(HotelsOrm.location.like(f'%{location}%'))
         if title:
-            query = query.filter_by(title=title)
+            query = query.filter(HotelsOrm.title.like(f'%{title}%'))
         query = (
             query
             .limit(per_page)
@@ -36,12 +37,12 @@ async def get_hotels(
 @router.post("", summary='Добавление нового отеля')
 async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     '1': {'summary': 'Сочи', 'value': {
-        'title': 'ул.Моря, 1',
-        'location': 'Сочи'
+        'title': 'South resort',
+        'location': 'Сочи, ул.Моря, 1'
     }},
     '2': {'summary': 'Дубай', 'value': {
-        'title': 'ул.Шейха, 2',
-        'location': 'Дубай'
+        'title': 'Burge Khalifa',
+        'location': 'Дубай, ул.Шейха, 2'
     }}
 })
 ):
