@@ -46,18 +46,18 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
 
 
 @router.delete("/{hotel_id}", summary='Удаление отеля по id')
-def delete_hotel(hotel_id: int):
-    global hotels
-    hotels = [hotel for hotel in hotels if hotel['id'] != hotel_id]
+async def delete_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        await HotelRepository(session).delete(id=hotel_id)
+        await session.commit()
     return {'status': 'OK'}
 
 
 @router.put("/{hotel_id}", summary='Изменение всех данных отеля')
-def edit_hotel(hotel_id: int, hotel_data: Hotel):
-    global hotels
-    hotel = next((hotel for hotel in hotels if hotel["id"] == hotel_id))
-    hotel['title'] = hotel_data.title
-    hotel['name'] = hotel_data.name
+async def edit_hotel(hotel_id: int, hotel_data: Hotel):
+    async with async_session_maker() as session:
+        await HotelRepository(session).edit(hotel_data, id=hotel_id)
+        await session.commit()
     return {'status': 'OK'}
 
 
