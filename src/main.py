@@ -3,14 +3,16 @@ from fastapi.openapi.docs import get_swagger_ui_html
 import uvicorn
 import sys
 from pathlib import Path
+
 from src.api.hotels import router as router_hotels
+from src.api.auth import router as router_auth
 
 sys.path.append(str(Path(__file__).parent.parent))
-
 
 app = FastAPI(docs_url=None)
 
 app.include_router(router_hotels)
+app.include_router(router_auth)
 
 
 @app.get("/docs", include_in_schema=False)
