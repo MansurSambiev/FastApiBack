@@ -9,18 +9,29 @@ router = APIRouter(prefix='/auth', tags=['Авторизация и аутент
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
+
 @router.post('/register')
 async def register_user(
         data: UserRequestAdd = Body(openapi_examples={
             '1': {'summary': 'User', 'value': {
                 'email': 'example@email.com',
-                'password': 'p@s$w0rd'
+                'password': 'p@s$w0rd',
+                'first_name': 'Vasya',
+                'last_name': 'Pupkin'
             }}
         })
+
 ):
 
     hashed_password = pwd_context.hash(data.password)
-    new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+
+    new_user_data = UserAdd(
+        email=data.email,
+        hashed_password=hashed_password,
+        first_name=data.first_name,
+        last_name=data.last_name
+    )
+
     async with async_session_maker() as session:
         await UsersRepository(session).add(new_user_data)
         await session.commit()
