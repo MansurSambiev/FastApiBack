@@ -22,14 +22,12 @@ async def get_rooms(hotel_id: int):
 @router.post("/{hotel_id}/rooms/", summary='Добавление нового номера')
 async def create_room(hotel_id: int, room_data: RoomAdd = Body(openapi_examples={
     '1': {'summary': 'Стандарт 1', 'value': {
-        'hotel_id': '1',
         'title': 'Эконом 1 мест',
         'description': 'Стандартный одноместный номер',
         'price': '2000',
         'quantity': '10',
     }},
     '2': {'summary': 'Стандарт 2', 'value': {
-        'hotel_id': '2',
         'title': 'Эконом 2 мест',
         'description': 'Стандартный двухместный номер',
         'price': '3000',
