@@ -34,8 +34,8 @@ async def get_booking(
 
 
 @router.get('/me', summary='Получение моих бронировваний')
-async def get_booking(
+async def get_my_booking(
         db: DBDep,
-        user_id=UserIdDep,
+        user_id: UserIdDep,
 ):
     return await db.bookings.get_filtered(user_id=user_id)
